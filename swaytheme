@@ -1,0 +1,59 @@
+#!/bin/sh
+
+#
+# Swaytheme - quick theme switcher for Sway
+#
+# I whipped this up real quick to swap between different theming dotfiles for Sway.
+# The themes are stored in ~/.config/sway/themes/ and your config should include
+# ~/.config/sway/themes/current - this file is a symlink to the theme you choose
+# using this tool. 
+#
+# usage: swaytheme [themename]
+# ex: swaytheme montagne
+#
+
+print_themes()
+{
+        ls -1 ~/.config/sway/themes/ | sed "s/current//" | sed "/^$/d" 
+}
+
+if [ "$1" = "" ]; then
+	echo valid themes:
+	print_themes
+	exit
+fi
+
+if [ "$1" = "--list" ]; then
+	print_themes
+	exit
+fi
+
+if [ "$1" = "--_completion" ]; then
+	if [ "$2" == "" ]; then
+		print_themes
+	else
+		print_themes | grep $2
+	fi
+	exit
+fi
+
+if [ "$1" = "current" ]; then
+	exit
+fi
+
+cd ~/.config/sway/themes
+
+if [ ! -f $1 ]; then
+	echo "Error: Couldn't find theme \"$1\""
+	echo " "
+	echo "valid themes:"
+	print_themes
+	exit
+fi
+
+rm current
+
+ln -s $1 current
+
+swaymsg reload
+
